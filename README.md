@@ -5,9 +5,11 @@ This is based on what is described at:
 https://digitalservices.npr.org/post/soundexchange-streaming-file-format-standard-announced
 
 It assumes that the icecast fields are in this order:
+
 c-ip null null [datetime] c-uri-request c-status c-bytes c-referer c-User-Agent seconds
 
 Such as:
+
 1.2.3.4 - - [05/Apr/2021:07:28:01 -0700] "GET /128 HTTP/1.1" 200 57635827 "-" "Lavf/58.29.100" 3600
 
 The mapping looks like this for the Soundexchange required columns:
