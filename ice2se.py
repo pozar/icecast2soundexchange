@@ -47,14 +47,16 @@ with open(sys.argv[1], "r") as infile:
                 logdatetime = foo[3][1:]
                 status = foo[6]
                 referrer = foo[8]
-                duration = foo[10]
+                sduration = foo[10]
                 # Create datetime object
                 d = datetime.datetime.strptime(logdatetime, "%d/%b/%Y:%H:%M:%S")
                 # Set the time zone 
                 d = pytz.timezone(localtz).localize(d)
                 # Transform the time to UTC
                 d = d.astimezone(pytz.utc)
-                print(ipaddr + '\t' + d.strftime("%Y-%m-%d\t%H:%M:%S") + '\t' + callsign + '\t' + duration + '\t' + status + '\t' + referrer)
+                duration = int(sduration)
+                if duration > 1:
+                    print(ipaddr + '\t' + d.strftime("%Y-%m-%d\t%H:%M:%S") + '\t' + callsign + '\t' + sduration + '\t' + status + '\t' + referrer)
 
             except socket.error:
                 # No IP address on this line.  Skip it.
