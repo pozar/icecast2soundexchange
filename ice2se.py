@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import datetime
 import pytz
@@ -7,7 +7,9 @@ import socket
 import shlex
 
 callsign = 'KXXX'
+# Change the following to your local timezone
 localtz = 'America/Los_Angeles'
+# 
 # Icecast logs look like:
 # Fields: c-ip null null [datetime] c-uri-request c-status c-bytes c-referer c-User-Agent seconds
 # Example:
@@ -29,6 +31,9 @@ localtz = 'America/Los_Angeles'
 # * "Referrer"/Client Player  
 #   Icecast: c-User-Agent
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 total = len(sys.argv)
 if total < 2:
     print("I need a file name on the command line")
@@ -39,7 +44,10 @@ with open(sys.argv[1], "r") as infile:
     for line in infile:
         li=line.strip()
         if not li.startswith("#"):
-            foo = shlex.split(li)
+            try:
+                foo = shlex.split(li)
+            except:
+                pass
             ipaddr = foo[0]
             try:
                 # Check for a valid IP address
@@ -49,15 +57,28 @@ with open(sys.argv[1], "r") as infile:
                 referrer = foo[8]
                 sduration = foo[10]
                 # Create datetime object
-                d = datetime.datetime.strptime(logdatetime, "%d/%b/%Y:%H:%M:%S")
+                try: 
+                    d = datetime.datetime.strptime(logdatetime, "%d/%b/%Y:%H:%M:%S")
+                except:
+                    eprint("ERROR:" + line, end='')
+                    continue
                 # Set the time zone 
-                d = pytz.timezone(localtz).localize(d)
+                try: 
+                    d = pytz.timezone(localtz).localize(d)
+                except:
+                    eprint("ERROR:" + line, end='')
+                    continue
                 # Transform the time to UTC
                 d = d.astimezone(pytz.utc)
-                duration = int(sduration)
+                try: 
+                    duration = int(sduration)
+                except:
+                    eprint("ERROR:" + line, end='')
+                    continue
                 if duration > 1:
                     print(ipaddr + '\t' + d.strftime("%Y-%m-%d\t%H:%M:%S") + '\t' + callsign + '\t' + sduration + '\t' + status + '\t' + referrer)
 
             except socket.error:
                 # No IP address on this line.  Skip it.
                 pass
+
